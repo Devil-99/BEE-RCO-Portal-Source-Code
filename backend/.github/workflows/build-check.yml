@@ -1,0 +1,41 @@
+name: Build Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+          
+      - name: Set up environment variables
+        run: |
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env
+          echo "SECRET_KEY=${{ vars.SECRET_KEY }}" >> .env
+          echo "APP_NAME=${{ vars.APP_NAME }}" >> .env
+          echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+          echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+          echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+          echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+          echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+          echo "BILLDESK_MERCID=${{ vars.BILLDESK_MERCID }}" >> .env
+          echo "BILLDESK_SECRETKEY=${{ vars.BILLDESK_SECRETKEY }}" >> .env
+          echo "BILLDESK_CLIENTID=${{ vars.BILLDESK_CLIENTID }}" >> .env
+          
+      - name: Compile FastAPI app with PyInstaller
+        run: |
+          pyinstaller main.spec

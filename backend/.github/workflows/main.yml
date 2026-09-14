@@ -1,0 +1,278 @@
+name: Build and Deploy FastAPI Executable
+ 
+on:
+  push:
+    branches: [main, uat, PRODUCTION]
+ 
+jobs:
+  deploy-uat:
+    if: github.ref == 'refs/heads/uat' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+ 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+ 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+ 
+      - name: Set up environment variables
+        run: |
+          echo "ENVIRONMENT=UAT" >> .env
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env
+          echo "SECRET_KEY=${{ vars.SECRET_KEY }}" >> .env
+          echo "APP_NAME=${{ vars.APP_NAME }}" >> .env
+          echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+          echo "DEFAULT_PASSWORD=${{ vars.DEFAULT_PASSWORD }}" >> .env
+          echo "BASE_URL=${{ vars.UAT_BASE_URL }}" >> .env
+          echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+          echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+          echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+          echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+          echo "PINNACLE_API_URL=${{ vars.PINNACLE_API_URL }}" >> .env
+          echo "SBI_MERCHANT_ID=${{ vars.TEST_SBI_MERCHANT_ID }}" >> .env
+          echo "SBI_AGGREGATOR_ID=${{ vars.TEST_SBI_AGGREGATOR_ID }}" >> .env
+          echo "SBI_ENCRYPTION_KEY=${{ vars.TEST_SBI_ENCRYPTION_KEY }}" >> .env
+          echo "SBI_API_ENDPOINT=${{ vars.TEST_SBI_API_ENDPOINT }}" >> .env
+          echo "SBI_DOUBLE_VALIDATION_URL=${{ vars.TEST_SBI_DOUBLE_VALIDATION_URL }}" >> .env
+      - name: Compile FastAPI app with PyInstaller
+        run: |
+          pyinstaller main.spec
+ 
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ vars.SSH_PORT }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+ 
+      - name: Deploy via rsync
+        run: |
+          rsync -avz -e "ssh -p ${{ vars.SSH_PORT }}" dist/ ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:/var/www/html/bee_backend
+ 
+      - name: Restart FastAPI service
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << 'EOF'
+            pkill -f fastapi_app || echo 'No running process found'
+            cd /var/www/html/bee_backend/fastapi_app
+            echo "ENVIRONMENT=UAT" >> .env
+            echo "DATABASE_URL=${{ vars.DATABASE_URL }}" > .env
+            echo "SECRET_KEY=${{ vars.SECRET_KEY }}" >> .env
+            echo "APP_NAME=${{ vars.APP_NAME }}" >> .env
+            echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+            echo "DEFAULT_PASSWORD=${{ vars.DEFAULT_PASSWORD }}" >> .env
+            echo "BASE_URL=${{ vars.UAT_BASE_URL }}" >> .env
+            echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+            echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+            echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+            echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+            echo "PINNACLE_API_URL=${{ vars.PINNACLE_API_URL }}" >> .env
+            echo "SBI_MERCHANT_ID=${{ vars.TEST_SBI_MERCHANT_ID }}" >> .env
+            echo "SBI_AGGREGATOR_ID=${{ vars.TEST_SBI_AGGREGATOR_ID }}" >> .env
+            echo "SBI_ENCRYPTION_KEY=${{ vars.TEST_SBI_ENCRYPTION_KEY }}" >> .env
+            echo "SBI_API_ENDPOINT=${{ vars.TEST_SBI_API_ENDPOINT }}" >> .env
+            echo "SBI_DOUBLE_VALIDATION_URL=${{ vars.TEST_SBI_DOUBLE_VALIDATION_URL }}" >> .env
+            chmod +x fastapi_app
+            nohup ./fastapi_app > app.log 2>&1 &
+          EOF
+ 
+      - name: Tail log for verification
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+          "tail -n 20 /var/www/html/bee_backend/fastapi_app/app.log || echo 'Log not found'"
+  deploy-dev:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+ 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+ 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+ 
+      - name: Set up environment variables
+        run: |
+          echo "ENVIRONMENT=DEV" >> .env
+          echo "DATABASE_URL=${{ vars.UAT_DB }}" >> .env
+          echo "SECRET_KEY=${{ vars.UAT_SECRET_KEY }}" >> .env
+          echo "APP_NAME=${{ vars.UAT_APP_NAME }}" >> .env
+          echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+          echo "DEFAULT_PASSWORD=${{ vars.DEFAULT_PASSWORD }}" >> .env
+          echo "BASE_URL=${{ vars.DEV_BASE_URL }}" >> .env
+          echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+          echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+          echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+          echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+          echo "PINNACLE_API_URL=${{ vars.PINNACLE_API_URL }}" >> .env
+          echo "SBI_MERCHANT_ID=${{ vars.TEST_SBI_MERCHANT_ID }}" >> .env
+          echo "SBI_AGGREGATOR_ID=${{ vars.TEST_SBI_AGGREGATOR_ID }}" >> .env
+          echo "SBI_ENCRYPTION_KEY=${{ vars.TEST_SBI_ENCRYPTION_KEY }}" >> .env
+          echo "SBI_API_ENDPOINT=${{ vars.TEST_SBI_API_ENDPOINT }}" >> .env
+          echo "SBI_DOUBLE_VALIDATION_URL=${{ vars.TEST_SBI_DOUBLE_VALIDATION_URL }}" >> .env
+      - name: Compile FastAPI app with PyInstaller
+        run: |
+          pyinstaller main.spec
+ 
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.UAT_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ vars.SSH_PORT }} -H ${{ vars.UAT_HOST }} >> ~/.ssh/known_hosts
+ 
+      - name: Deploy via rsync
+        run: |
+          rsync -avz -e "ssh -p ${{ vars.SSH_PORT }}" dist/ ${{ vars.SSH_USER }}@${{ vars.UAT_HOST }}:/var/www/html/bee_backend
+ 
+      - name: Restart FastAPI service
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.UAT_HOST }} << 'EOF'
+            pkill -f fastapi_app || echo 'No running process found'
+            cd /var/www/html/bee_backend/fastapi_app
+            echo "ENVIRONMENT=DEV" >> .env
+            echo "DATABASE_URL=${{ vars.UAT_DB }}" > .env
+            echo "SECRET_KEY=${{ vars.UAT_SECRET_KEY }}" >> .env
+            echo "APP_NAME=${{ vars.UAT_APP_NAME }}" >> .env
+            echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+            echo "DEFAULT_PASSWORD=${{ vars.DEFAULT_PASSWORD }}" >> .env
+            echo "BASE_URL=${{ vars.DEV_BASE_URL }}" >> .env
+            echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+            echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+            echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+            echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+            echo "PINNACLE_API_URL=${{ vars.PINNACLE_API_URL }}" >> .env
+            echo "SBI_MERCHANT_ID=${{ vars.TEST_SBI_MERCHANT_ID }}" >> .env
+            echo "SBI_AGGREGATOR_ID=${{ vars.TEST_SBI_AGGREGATOR_ID }}" >> .env
+            echo "SBI_ENCRYPTION_KEY=${{ vars.TEST_SBI_ENCRYPTION_KEY }}" >> .env
+            echo "SBI_API_ENDPOINT=${{ vars.TEST_SBI_API_ENDPOINT }}" >> .env
+            echo "SBI_DOUBLE_VALIDATION_URL=${{ vars.TEST_SBI_DOUBLE_VALIDATION_URL }}" >> .env
+            chmod +x fastapi_app
+            nohup ./fastapi_app > app.log 2>&1 &
+          EOF
+ 
+      - name: Tail log for verification
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.UAT_HOST }} \
+          "tail -n 20 /var/www/html/bee_backend/fastapi_app/app.log || echo 'Log not found'"
+
+ # ----------------------------------------------------
+ # -------- PRODUCTION CONFIGURATION ------------------
+ # ----------------------------------------------------
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/PRODUCTION' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        server: [prod1, prod2]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+ 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+ 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+ 
+      - name: Set up environment variables
+        run: |
+          echo "ENVIRONMENT=PROD" >> .env
+          echo "DATABASE_URL=${{ vars.PROD_DB }}" >> .env
+          echo "SECRET_KEY=${{ vars.UAT_SECRET_KEY }}" >> .env
+          echo "APP_NAME=${{ vars.UAT_APP_NAME }}" >> .env
+          echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+          echo "DEFAULT_PASSWORD=${{ vars.DEFAULT_PASSWORD }}" >> .env
+          echo "BASE_URL=${{ vars.PROD_BASE_URL }}" >> .env
+          echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+          echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+          echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+          echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+          echo "PINNACLE_API_URL=${{ vars.PINNACLE_API_URL }}" >> .env
+          echo "SBI_MERCHANT_ID=${{ vars.SBI_MERCHANT_ID }}" >> .env
+          echo "SBI_AGGREGATOR_ID=${{ vars.SBI_AGGREGATOR_ID }}" >> .env
+          echo "SBI_ENCRYPTION_KEY=${{ vars.SBI_ENCRYPTION_KEY }}" >> .env
+          echo "SBI_API_ENDPOINT=${{ vars.SBI_API_ENDPOINT }}" >> .env
+          echo "SBI_DOUBLE_VALIDATION_URL=${{ vars.SBI_DOUBLE_VALIDATION_URL }}" >> .env
+      - name: Compile FastAPI app with PyInstaller
+        run: |
+          pyinstaller main.spec
+      - name: Select server config
+        id: config
+        run: |
+          if [ "${{ matrix.server }}" = "prod1" ]; then
+            echo "HOST=${{ secrets.PROD1_HOST }}" >> $GITHUB_ENV
+            echo "KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PROD1_KEY }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "HOST=${{ secrets.PROD2_HOST }}" >> $GITHUB_ENV
+            echo "KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PROD2_KEY }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ vars.SSH_PORT }} -H $HOST >> ~/.ssh/known_hosts
+ 
+      - name: Deploy via rsync
+        run: |
+          rsync -avz -e "ssh -p ${{ vars.SSH_PORT }}" dist/ ${{ vars.SSH_USER }}@$HOST:/var/www/html/bee_backend
+ 
+      - name: Restart FastAPI service
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@$HOST << 'EOF'
+            systemctl stop fastapi || echo 'No running process found'
+            cd /var/www/html/bee_backend/fastapi_app
+            mkdir uploads
+            echo "ENVIRONMENT=PROD" >> .env
+            echo "DATABASE_URL=${{ vars.PROD_DB }}" > .env
+            echo "SECRET_KEY=${{ vars.UAT_SECRET_KEY }}" >> .env
+            echo "APP_NAME=${{ vars.UAT_APP_NAME }}" >> .env
+            echo "ALGORITHM=${{ vars.ALGORITHM }}" >> .env
+            echo "DEFAULT_PASSWORD=${{ vars.DEFAULT_PASSWORD }}" >> .env
+            echo "BASE_URL=${{ vars.PROD_BASE_URL }}" >> .env
+            echo "PINNACLE_ACCESSKEY=${{ vars.PINNACLE_ACCESSKEY }}" >> .env
+            echo "PINNACLE_SENDER_ID=${{ vars.PINNACLE_SENDER_ID }}" >> .env
+            echo "PINNACLE_DLT_ENTITY_ID=${{ vars.PINNACLE_DLT_ENTITY_ID }}" >> .env
+            echo "PINNACLE_OTP_DLT_TEMPLATE_ID=${{ vars.PINNACLE_OTP_DLT_TEMPLATE_ID }}" >> .env
+            echo "PINNACLE_API_URL=${{ vars.PINNACLE_API_URL }}" >> .env
+            echo "SBI_MERCHANT_ID=${{ vars.SBI_MERCHANT_ID }}" >> .env
+            echo "SBI_AGGREGATOR_ID=${{ vars.SBI_AGGREGATOR_ID }}" >> .env
+            echo "SBI_ENCRYPTION_KEY=${{ vars.SBI_ENCRYPTION_KEY }}" >> .env
+            echo "SBI_API_ENDPOINT=${{ vars.SBI_API_ENDPOINT }}" >> .env
+            echo "SBI_DOUBLE_VALIDATION_URL=${{ vars.SBI_DOUBLE_VALIDATION_URL }}" >> .env
+            chmod +x fastapi_app
+            systemctl start fastapi
+          EOF
+ 
+      - name: Tail log for verification
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@$HOST \
+          "tail -n 20 /var/www/html/bee_backend/fastapi_app/app.log || echo 'Log not found'"
+ 

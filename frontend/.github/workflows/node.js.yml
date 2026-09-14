@@ -1,0 +1,164 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ "main", "uat", "PRODUCTION" ]
+  pull_request:
+    branches: [ "main", "uat", "PRODUCTION" ]
+  workflow_dispatch:
+    
+
+jobs:
+
+  # ---------------------------
+  #  BUILD JOB
+  # ---------------------------
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: npm run build --if-present
+
+  # ---------------------------
+  #  UAT DEPLOY (uat branch)
+  # ---------------------------
+  deploy-uat:
+    if: github.ref == 'refs/heads/uat' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: npm run build --if-present
+
+      - name: Deploy to UAT server
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+          rsync -avz -e "ssh -i key.pem -p $SSH_PORT -o StrictHostKeyChecking=no" \
+            dist/ $SSH_USERNAME@$SSH_HOST:/var/www/html/bee-rpo-frontend/dist
+
+  # ---------------------------
+  #  MAIN ROLLOUT -> UAT ENV
+  # ---------------------------
+  uat-rollout:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: npm run build --if-present
+
+      - name: Deploy to UAT server
+        env:
+          SSH_HOST: ${{ secrets.UAT_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.UAT_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+          rsync -avz -e "ssh -i key.pem -p $SSH_PORT -o StrictHostKeyChecking=no" \
+            dist/ $SSH_USERNAME@$SSH_HOST:/var/www/html/bee-rpo-frontend/dist
+
+  # ---------------------------
+  #  PRODUCTION DEPLOY TO 2 SERVERS
+  # ---------------------------
+  prod-rollout:
+    if: github.ref == 'refs/heads/PRODUCTION' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        server: [prod1, prod2]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: npm run build --if-present
+
+      # ---------------------------
+      # This step dynamically assigns secrets
+      # ---------------------------
+      - name: Select production server
+        run: |
+          if [ "${{ matrix.server }}" = "prod1" ]; then
+            echo "HOST=${{ secrets.PROD1_HOST }}" >> $GITHUB_ENV
+
+            echo "KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PROD1_KEY }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+
+          else
+            echo "HOST=${{ secrets.PROD2_HOST }}" >> $GITHUB_ENV
+
+            echo "KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PROD2_KEY }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to PROD (${{ matrix.server }})
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          echo "$KEY" > key.pem
+          chmod 600 key.pem
+
+          rsync -avz -e "ssh -i key.pem -p $SSH_PORT -o StrictHostKeyChecking=no" \
+            dist/ $SSH_USERNAME@$HOST:/var/www/html/bee-rpo-frontend/dist

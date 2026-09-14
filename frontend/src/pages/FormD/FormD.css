@@ -1,0 +1,1052 @@
+
+:root {
+    /* ================= SHARED COLORS ================= */
+    --border: #000000;
+    --white: #FFFFFF;
+    --page-bg: #E8E8E8;
+    --font: Arial, sans-serif;
+
+    /* ================= SHARED CELL COLORS ================= */
+    --grey: #E7E6E6;
+    --peach: #FCE4D6;
+    --first-row-bg: #FFF2CC;
+    --remaining-row-bg: #D9E2F3;
+    --green-row: #C6E0B4;
+    --disabled-bg: #ECECEC;
+
+    /* ================= SHARED HEADER COLORS ================= */
+    --title-bg: #7030A0;
+    --section-a-bg: #FFD966;
+    --section-bc-green: #A9D18E;
+    --section-bc-blue: #AEC3E5;
+    --section-bc-blue-alt: #8EAADB;
+    --section-d-yellow: #FFD966;
+
+    /* ================= SHARED FRAME COLORS ================= */
+    --frame-green: #138808;
+    --frame-blue: #2b2e83;
+
+    /* ================= PDF-SPECIFIC TOKENS ================= */
+    --pdf-border: #000000;
+    --pdf-page-bg: #FFFFFF;
+    --pdf-page-padding: 12px;
+    --pdf-frame-width: 4px;
+    --pdf-container-padding-x: 14px;
+    --pdf-container-padding-top: 6px;
+    --pdf-container-padding-bottom: 6px;
+    --pdf-cell-border: 0.5px;
+    --pdf-cell-padding-y: 2px;
+    --pdf-cell-padding-x: 6px;
+    --pdf-header-height: 38px;
+    --pdf-header-font: 18px;
+    --pdf-section-a-height: 28px;
+    --pdf-section-header-font: 12px;
+    --pdf-column-header-height: 24px;
+    --pdf-column-header-font: 11px;
+    --pdf-child-row-height: 24px;
+    --pdf-cell-font: 10px;
+    --pdf-cell-bold-font: 11px;
+    --pdf-legend-margin: 10px;
+    --pdf-legend-title-font: 9px;
+    --pdf-legend-cell-font: 8px;
+    --pdf-legend-cell-padding-y: 3px;
+    --pdf-legend-cell-padding-x: 6px;
+    --pdf-undertaking-padding-y: 8px;
+    --pdf-undertaking-padding-x: 10px;
+    --pdf-undertaking-heading-font: 9px;
+    --pdf-undertaking-text-font: 8px;
+    --pdf-undertaking-text-line-height: 1.5;
+    --pdf-undertaking-designation-margin: 5px;
+    --pdf-undertaking-designation-font: 9px;
+    --pdf-undertaking-sig-label-font: 8px;
+    --pdf-signature-area-height: 50px;
+    --pdf-footnote-font: 7px;
+    --pdf-footnote-color: #555555;
+    --pdf-footnote-margin: 3px;
+    --pdf-sup-font: 6px;
+    --pdf-right-padding: 10px;
+}
+
+/* ================= RESET ================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font);
+}
+
+body {
+    background: var(--page-bg);
+    font-family: var(--font);
+}
+
+/* ================= SHARED LAYOUT ================= */
+
+.page-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+.form-d-sheet {
+    background: var(--white);
+    border: 3px solid var(--border);
+    font-family: var(--font);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ================= TABLE BASE ================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+td {
+    border: 1px solid var(--border);
+    font-family: var(--font);
+    vertical-align: middle;
+}
+
+/* ================= SHARED CELL CLASSES ================= */
+
+.cell-peach {
+    background: var(--peach) !important;
+}
+
+.bold {
+    font-weight: 700;
+}
+
+/* ================= SHARED SECTION HEADERS ================= */
+
+.section-header-green,
+.part-header {
+    background: var(--section-bc-green);
+    font-family: var(--font);
+    font-weight: 700;
+    text-align: left;
+    vertical-align: middle;
+    height: 36px;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    color: #000;
+}
+
+.section-header-blue,
+.section-blue {
+    background: var(--section-bc-blue);
+    font-family: var(--font);
+    font-weight: 700;
+    text-align: left;
+    vertical-align: middle;
+    height: 36px;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    color: #000;
+}
+
+.section-header-yellow,
+.section-yellow {
+    background: var(--section-d-yellow);
+    font-family: var(--font);
+    font-weight: 700;
+    text-align: left;
+    vertical-align: middle;
+    height: 36px;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    color: #000;
+}
+
+/* ================= SHARED COLUMN HEADERS ================= */
+
+.column-header td {
+    background: var(--grey);
+    font-family: var(--font);
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+    height: 34px;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+}
+
+/* ================= SHARED DATA CELLS ================= */
+
+.label {
+    font-family: var(--font);
+    font-size: 10px;
+    text-align: left;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    background: var(--grey);
+}
+
+.unit {
+    font-family: var(--font);
+    font-size: 12px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    background: var(--grey);
+}
+
+.calculated {
+    background: var(--grey);
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: right;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+}
+
+.user-input {
+    background: var(--grey);
+    font-family: var(--font);
+    font-size: 10px;
+    text-align: right;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    font-weight: 400;
+}
+
+/* ================= SHARED ROW HEIGHTS ================= */
+
+.summary-data td {
+    height: 44px;
+    font-size: 12px;
+}
+
+.matrix-data td {
+    height: 32px;
+}
+
+.child-row td {
+    padding: 4px 8px;
+    height: 28px;
+    max-height: 28px;
+}
+
+/* ================= SHARED COLOR OVERRIDES ================= */
+
+.cell-yellow {
+    background: var(--first-row-bg) !important;
+}
+
+.cell-blue {
+    background: var(--remaining-row-bg) !important;
+}
+
+.green-highlight {
+    background: var(--green-row);
+    font-weight: 700;
+}
+
+/* ================= SHARED UNDERTAKING ================= */
+
+.undertaking-box {
+    border: 1px solid var(--border);
+    margin-top: 0;
+    padding: 12px 15px;
+}
+
+.undertaking-heading {
+    font-family: var(--font);
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 10px;
+}
+
+.undertaking-box p {
+    margin: 0 0 8px;
+    font-family: var(--font);
+    font-size: 10px;
+    line-height: 1.6;
+    text-align: justify;
+}
+
+.undertaking-designation {
+    margin-top: 15px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 11px;
+    text-align: left;
+}
+
+.undertaking-signature-label {
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 11px;
+    text-align: left;
+}
+
+.undertaking-signature-area {
+    position: relative;
+    height: 100px;
+}
+
+/* ================= SHARED LEGEND ================= */
+
+.legend-section {
+    margin-top: 24px;
+}
+
+.legend-title {
+    margin: 7px;
+    padding: 0 0 2px 0;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: left;
+}
+
+.legend-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-top: 0;
+    table-layout: fixed;
+}
+
+.legend-table td {
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.legend-disabled {
+    background: var(--disabled-bg);
+    text-align: center;
+}
+
+.legend-user {
+    background: var(--white);
+    text-align: center;
+}
+
+.legend-calculated {
+    background: var(--peach);
+    text-align: center;
+}
+
+/* ================= SHARED PRINT ================= */
+
+@media print {
+    body {
+        background: white;
+    }
+
+    .page-container {
+        padding: 0;
+    }
+
+    .form-d-sheet {
+        border: 3px solid black;
+        box-shadow: none;
+    }
+}
+
+/* ============================================================
+   PDF STYLES (single source of truth for react-pdf components)
+   ============================================================ */
+
+.pdf-page {
+    padding: 12px;
+    background-color: #FFFFFF;
+}
+
+.pdf-container {
+    flex: 1;
+    border-top: 4px solid var(--frame-green);
+    border-left: 4px solid var(--frame-green);
+    border-right: 4px solid var(--frame-blue);
+    border-bottom: 4px solid var(--frame-blue);
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.pdf-row {
+    flex-direction: row;
+    width: 100%;
+}
+
+.pdf-cell {
+    border-top-width: 0;
+    border-right-width: 0.5px;
+    border-bottom-width: 0.5px;
+    border-left-width: 0;
+    border-color: var(--border);
+    border-style: solid;
+    justify-content: center;
+    padding-vertical: 2px;
+    padding-horizontal: 6px;
+}
+
+.pdf-cell-first-col {
+    border-left-width: 0.5px;
+}
+
+.pdf-cell-top {
+    border-top-width: 0.5px;
+}
+
+.pdf-header-title {
+    background-color: var(--title-bg);
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    height: 38px;
+    padding-vertical: 5px;
+    padding-horizontal: 10px;
+    border-width: 0.5px;
+    border-color: var(--border);
+    border-style: solid;
+}
+
+.pdf-section-a-header {
+    background-color: var(--section-a-bg);
+    font-weight: bold;
+    font-size: 12px;
+    text-align: left;
+    height: 28px;
+    padding-vertical: 4px;
+    padding-horizontal: 8px;
+    border-width: 0.5px;
+    border-color: var(--border);
+    border-style: solid;
+}
+
+.pdf-label-cell {
+    width: 52%;
+    background-color: var(--grey);
+    font-size: 10px;
+    font-weight: bold;
+    text-align: left;
+    padding-vertical: 4px;
+    padding-horizontal: 6px;
+}
+
+.pdf-value-cell {
+    width: 48%;
+    background-color: var(--peach);
+    font-size: 10px;
+    font-weight: bold;
+    text-align: left;
+    padding-vertical: 4px;
+    padding-horizontal: 6px;
+}
+
+.pdf-legend-section {
+    margin-top: 10px;
+}
+
+.pdf-legend-title {
+    margin: 4px;
+    padding-bottom: 3px;
+    font-size: 9px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: left;
+}
+
+.pdf-legend-row {
+    flex-direction: row;
+    width: 100%;
+}
+
+.pdf-legend-cell {
+    border-top-width: 0;
+    border-right-width: 0.5px;
+    border-bottom-width: 0.5px;
+    border-left-width: 0;
+    border-color: var(--border);
+    border-style: solid;
+    padding-vertical: 3px;
+    padding-horizontal: 6px;
+    text-align: center;
+    font-size: 8px;
+    font-weight: bold;
+    line-height: 1.2;
+    justify-content: center;
+}
+
+.pdf-legend-cell-first {
+    border-left-width: 0.5px;
+}
+
+.pdf-legend-cell-top {
+    border-top-width: 0.5px;
+}
+
+.pdf-legend-disabled {
+    background-color: var(--disabled-bg);
+    width: 52%;
+}
+
+.pdf-legend-user {
+    background-color: #FFFFFF;
+    width: 24%;
+}
+
+.pdf-legend-calculated {
+    background-color: var(--peach);
+    width: 24%;
+}
+
+.pdf-undertaking-box {
+    border-width: 0.5px;
+    border-color: var(--border);
+    border-style: solid;
+    padding-vertical: 8px;
+    padding-horizontal: 10px;
+    margin-top: 0;
+}
+
+.pdf-undertaking-heading {
+    font-size: 9px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.pdf-undertaking-text {
+    font-size: 8px;
+    line-height: 1.5;
+    text-align: justify;
+    margin-bottom: 5px;
+}
+
+.pdf-undertaking-designation {
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 9px;
+    text-align: left;
+}
+
+.pdf-signature-area {
+    height: 50px;
+}
+
+.pdf-undertaking-sig-label {
+    font-weight: bold;
+    font-size: 8px;
+    text-align: left;
+    padding-bottom: 5px;
+}
+
+.pdf-section-header-green {
+    background-color: var(--section-bc-green);
+    font-weight: bold;
+    font-size: 12px;
+    text-align: left;
+    height: 28px;
+    padding-vertical: 4px;
+    padding-horizontal: 8px;
+    border-width: 0.5px;
+    border-color: var(--border);
+    border-style: solid;
+}
+
+.pdf-section-header-blue {
+    background-color: var(--section-bc-blue);
+    font-weight: bold;
+    font-size: 12px;
+    text-align: left;
+    height: 28px;
+    padding-vertical: 4px;
+    padding-horizontal: 8px;
+    border-width: 0.5px;
+    border-color: var(--border);
+    border-style: solid;
+}
+
+.pdf-section-header-yellow {
+    background-color: var(--section-d-yellow);
+    font-weight: bold;
+    font-size: 12px;
+    text-align: left;
+    height: 28px;
+    padding-vertical: 4px;
+    padding-horizontal: 8px;
+    border-width: 0.5px;
+    border-color: var(--border);
+    border-style: solid;
+}
+
+.pdf-column-header {
+    background-color: var(--grey);
+    font-weight: bold;
+    font-size: 11px;
+    height: 24px;
+}
+
+.pdf-child-row {
+    height: 24px;
+}
+
+.pdf-bold {
+    font-weight: bold;
+}
+
+.pdf-center {
+    text-align: center;
+}
+
+.pdf-right {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.pdf-first-row-label {
+    background-color: var(--first-row-bg);
+    font-size: 10px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.pdf-all-peach-label {
+    background-color: var(--grey);
+    font-size: 10px;
+    text-align: left;
+}
+
+.pdf-all-peach-value {
+    background-color: var(--peach);
+    text-align: right;
+    padding-right: 10px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.pdf-mixed-label {
+    background-color: var(--remaining-row-bg);
+    font-size: 10px;
+    font-weight: normal;
+    text-align: left;
+}
+
+.pdf-mixed-value {
+    background-color: var(--peach);
+    text-align: right;
+    padding-right: 10px;
+    font-size: 10px;
+}
+
+.pdf-green-highlight {
+    background-color: var(--green-row);
+    font-weight: bold;
+}
+
+.pdf-green-label {
+    background-color: var(--green-row);
+    font-size: 10px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.pdf-no-green-label {
+    background-color: var(--grey);
+    font-weight: normal;
+}
+
+.pdf-no-green-value {
+    background-color: var(--peach);
+}
+
+.pdf-remaining-label {
+    background-color: var(--remaining-row-bg);
+    font-weight: normal;
+}
+
+.pdf-d-regular-label {
+    background-color: var(--grey);
+    font-weight: normal;
+}
+
+.pdf-d-regular-value {
+    background-color: var(--peach);
+}
+
+.pdf-sup {
+    font-size: 6px;
+}
+
+.pdf-footnote {
+    font-size: 7px;
+    color: #555555;
+    text-align: left;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+/* ============================================================
+   DISCOM-SPECIFIC STYLES
+   ============================================================ */
+
+.form-d-discom {
+    background: #f3f3f3;
+}
+
+.form-d-discom .form-d-sheet {
+    width: 100%;
+    max-width: 100%;
+    min-height: 297mm;
+}
+
+.form-d-discom td {
+    font-size: 10px;
+    padding: 4px 8px;
+}
+
+.form-d-discom .header-title {
+    background: var(--title-bg);
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+    height: 58px;
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+}
+
+.form-d-discom .section-a td {
+    height: 34px;
+}
+
+.form-d-discom .section-a .value-cell {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.form-d-discom .label-cell {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    width: 42%;
+    background: var(--grey);
+}
+
+.form-d-discom .value-cell {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 400;
+    text-align: left;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    width: 58%;
+    background: var(--white);
+}
+
+.form-d-discom .label.cell-yellow {
+    font-size: 12px;
+}
+
+.form-d-discom .label-right {
+    text-align: right;
+}
+
+.form-d-discom .unit-certs {
+    font-family: var(--font);
+    font-size: 10px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    background: var(--grey);
+}
+
+.form-d-discom .green-highlight .label {
+    background: var(--green-row);
+    font-size: 12px;
+}
+
+.form-d-discom .green-highlight .unit {
+    background: var(--grey) !important;
+    font-size: 12px;
+}
+
+.form-d-discom .green-highlight .calculated {
+    font-size: 12px;
+}
+
+.form-d-discom .part-b-row .label {
+    background: var(--grey);
+    font-size: 10px;
+}
+
+.form-d-discom .part-b-row .unit-certs {
+    font-size: 10px;
+}
+
+.form-d-discom .part-b-row .user-input {
+    background: var(--white);
+    font-size: 10px;
+}
+
+.form-d-discom .legend-table {
+    margin-top: 40px;
+}
+
+.form-d-discom .legend-label {
+    background: var(--white);
+    font-weight: 700;
+    text-align: left;
+    padding-left: 8px;
+}
+
+.form-d-discom .footnote {
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 400;
+    color: #555;
+    text-align: left;
+    margin-top: 12px;
+}
+
+/* ============================================================
+   CPP-SPECIFIC STYLES
+   ============================================================ */
+
+.form-d-cpp {
+    background: #f3f3f3;
+}
+
+.form-d-cpp .form-d-sheet {
+    width: 100%;
+    max-width: 100%;
+    min-height: 297mm;
+    font-size: 12px;
+    color: #000;
+    border: 1px solid var(--border);
+}
+
+.form-d-cpp td,
+.form-d-cpp th {
+    font-size: 10px;
+    padding: 4px 8px;
+}
+
+.form-d-cpp .title {
+    background: var(--title-bg);
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    height: 55px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+}
+
+.form-d-cpp .section-header {
+    background: var(--section-a-bg);
+    font-weight: bold;
+    font-size: 14px;
+    text-align: left;
+    vertical-align: middle;
+    height: 36px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+}
+
+.form-d-cpp .column-header td,
+.form-d-cpp table.section-d .column-header td {
+    background: var(--grey);
+    font-weight: bold;
+    font-size: 14px;
+    vertical-align: middle;
+    height: 34px;
+    border: 1px solid var(--border);
+}
+
+.form-d-cpp .column-header .value-cell {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp .section-a .label-cell {
+    width: 52%;
+    font-size: 12px;
+    background: var(--grey);
+}
+
+.form-d-cpp .section-a .value-cell {
+    width: 48%;
+    text-align: left;
+    padding-left: 8px;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.form-d-cpp .label-cell {
+    width: 52%;
+    background: var(--white);
+    font-weight: 600;
+}
+
+.form-d-cpp .value-cell {
+    width: 24%;
+    background: var(--peach);
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp .sub-section-header {
+    background: var(--white);
+    font-weight: bold;
+    text-align: left;
+    padding: 4px 8px;
+}
+
+.form-d-cpp .unit-cell {
+    width: 24%;
+    background: var(--grey);
+    text-align: center;
+    font-size: 10px;
+}
+
+.form-d-cpp .unit-cell.fs-12 {
+    font-size: 12px !important;
+}
+
+.form-d-cpp .unit-cell.fs-10 {
+    font-size: 10px !important;
+}
+
+.form-d-cpp .calculated-cell {
+    background: var(--peach);
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp .readonly-cell {
+    background: var(--peach);
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp .first-row .label-cell {
+    background: var(--first-row-bg);
+    font-size: 12px;
+}
+
+.form-d-cpp .first-row .value-cell {
+    background: var(--peach);
+    font-size: 12px;
+}
+
+.form-d-cpp .remaining-row .label-cell {
+    background: var(--remaining-row-bg);
+}
+
+.form-d-cpp .remaining-row .value-cell {
+    background: var(--peach);
+}
+
+.form-d-cpp .remaining-row.no-green .label-cell {
+    background: var(--grey);
+}
+
+.form-d-cpp .remaining-row.no-green .value-cell {
+    background: var(--peach);
+}
+
+.form-d-cpp .green-group .label-cell {
+    background: var(--section-bc-green);
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.form-d-cpp .green-group .value-cell {
+    background: var(--peach);
+    font-size: 12px;
+}
+
+.form-d-cpp .regular-label .label-cell {
+    font-weight: normal;
+}
+
+.form-d-cpp .child-row .label-cell {
+    font-weight: normal;
+    background: var(--grey);
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp .child-row .unit-cell {
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.form-d-cpp .child-row .value-cell {
+    background: var(--white);
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp table.section-d .label-cell {
+    font-weight: normal;
+}
+
+.form-d-cpp .d-regular-row .label-cell {
+    background: var(--grey);
+}
+
+.form-d-cpp .d-regular-row .value-cell {
+    background: var(--peach);
+}
+
+.form-d-cpp .d-special-row .label-cell {
+    background: var(--white);
+}
+
+.form-d-cpp .d-special-row .value-cell {
+    background: var(--peach);
+}
+
+.form-d-cpp .center {
+    text-align: center;
+}
+
+.form-d-cpp .right {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.form-d-cpp .label-fs-13 {
+    font-size: 10px;
+}
+
+.form-d-cpp .signature-seal-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
